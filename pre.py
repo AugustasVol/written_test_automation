@@ -72,7 +72,7 @@ def shrink(img, max_size = 2000):
         img = cv2.resize(img, new_dims)
     return img
 def shrink_pil(img, max_size = 2000):
-
+    '''shrink function but for pil image'''
     dims = img.size
     max_dim = np.max(dims)
     if max_dim > max_size:
@@ -90,6 +90,7 @@ def imread(path, max_size = 2000):
     else:
         raise
 def imread_uri(uri, max_size = 2000):
+    '''imread image encoded as base64 url'''
     pil_image = Base64Image.from_uri(uri).get_pil_image()
     pil_image = shrink_pil(pil_image, max_size=max_size)
     pil_image = pil_image.convert(mode="L")

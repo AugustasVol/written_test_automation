@@ -72,7 +72,8 @@ def sort_points(blobs, column_number = 4):
 
 
 def locate_4_outer_points(arr):
-    '''using Pythagoras theorem'''
+    '''using Pythagoras theorem
+       from the list of all points'''
     if len(arr.shape) != 2:
         raise
     mean_point = np.mean(arr,axis=0)
@@ -81,6 +82,7 @@ def locate_4_outer_points(arr):
     indexes = np.argpartition(distance_from_mean, -4)[-4:]
     return arr[indexes]
 def sides_from_outer_points(arr):
+    '''given 4 points organize into left and right side'''
 
     if arr.shape != (4,2):
         raise
@@ -106,6 +108,7 @@ def sides_from_outer_points(arr):
 
 
 def angle_2_points(main_point, second_point):
+    '''get an angle between two points'''
     if main_point.shape != second_point.shape:
         raise
     if main_point.shape != (2,):

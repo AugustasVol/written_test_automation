@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import numpy as np
-from time import sleep
-
-
+import os
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
 # Create a black image
+
+### config
 y = 33
 x = 330
 
@@ -19,11 +19,15 @@ space_between_boxes_y = 0
 square_size = y
 
 font_size = 20
-font = ImageFont.truetype("font.ttf", font_size)
+
+font_file = os.path.dirname(os.path.abspath(__file__)) + "/font.ttf"
+font = ImageFont.truetype(font_file, font_size)
 
 question_letter_margin = 5
 
 letter_array = ["A", "B", "C" ,"D", "E","F", "G","H", "I", "Y"]
+
+### end config
 
 def draw_circle(draw_obj,x,y,radius, line_width):
         draw_obj.ellipse([x-radius, y-radius, x+radius, y+radius], fill=0)

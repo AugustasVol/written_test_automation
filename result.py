@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-import loc
-import pre
+import os
+from . import loc, pre, config, nets
 import numpy as np
-import config
-import nets
 import matplotlib.pyplot as plt
 from uuid import uuid4
 def show(im):
@@ -13,7 +11,7 @@ def show(im):
 
 
 net = nets.answer_model()
-net.load_weights("./answer_weights.pickle")
+net.load_weights(os.path.dirname(os.path.abspath(__file__)) + "/answer_weights.pickle")
 
 class fiver_iterator:
     def __init__(self, im, blob_loc):

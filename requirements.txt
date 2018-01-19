@@ -1,0 +1,6 @@
+numpy
+opencv-python
+scipy
+base64image
+pillow
+#pytorch

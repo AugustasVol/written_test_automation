@@ -3,11 +3,11 @@
 import os
 from . import loc, pre, config, nets
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from uuid import uuid4
-def show(im):
-    plt.imshow(im,cmap="gray")
-    plt.show()
+#def show(im):
+#    plt.imshow(im,cmap="gray")
+#    plt.show()
 
 
 net = nets.answer_model()
@@ -71,34 +71,45 @@ def predict(im, black_dots_columns = 4):
 
     ### calculate configs
 
-    largest_dimension = np.max(im.shape)
+    
+    dimension = config.dimension(im.shape)
 
-    threshold_kernel = pre.odd_number(largest_dimension * config.threshold_kernel_percent)
-    median_blur_kernel = pre.odd_number(largest_dimension * config.median_blur_kernel_percent)
-    blob_min_area = int(3.14 * (((largest_dimension * config.blob_min_size_percent)/2)**2))
+    threshold_kernel = pre.odd_number(round(dimension * config.threshold_kernel_percent))
+
+    minimize_ratio = config.minimize_ratio
+    small_im_dim_0 = int(round(im.shape[0] / minimize_ratio))
+    small_im_dim_1 = int(round(im.shape[1] / minimize_ratio))
+ 
+    median_blur_kernel = pre.odd_number(round(dimension * config.median_blur_kernel_percent))
+    small_median_blur_kernel = pre.odd_number(round((dimension * config.median_blur_kernel_percent) / minimize_ratio))
+
+    blob_min_area = int(round(3.14 * (((dimension * (config.blob_min_size_percent))/2)**2)))
+    small_blob_min_area = int(round(3.14 * (((dimension * (config.blob_min_size_percent / minimize_ratio))/2)**2)))
+
 
     ###
 
-    ### initialize blob detector
-
-    blob_detector = loc.blobs(min_area=blob_min_area)
-
     ###
 
-    ### prepare images for blob detection
-
+    ### thesholded image used
     im_th = pre.threshold(im, kernel_size=threshold_kernel, C = config.threshold_C)
-    im_median = pre.median_blur(im_th, kernel_size=median_blur_kernel)
-    im_median = pre.resize(im_median, (im_th.shape[1],im_th.shape[0]))
+    
+    ### prepare images for blob detection, everything is scaled down for faster blob detection
+    small_im_th = pre.resize(im_th, (small_im_dim_1, small_im_dim_0))
+    small_im_median = pre.median_blur(small_im_th, kernel_size=small_median_blur_kernel)
+    #im_median = pre.resize(im_median, (im_th.shape[1],im_th.shape[0]))
 
     ###
     #show(im)
     #show(im_th)
-    #show(im_median)
+    #show(small_im_median)
 
     ### detect blobs from median_blur_image and get deskew angle
 
-    blobs = blob_detector.blob_location(im_median)
+    small_blob_detector = loc.blobs(min_area=small_blob_min_area)
+    small_blobs = small_blob_detector.blob_location(small_im_median)
+    blobs = small_blobs * minimize_ratio # location of blobs in big image
+
     outer_4 = loc.locate_4_outer_points(blobs)
     outer_side = loc.sides_from_outer_points(outer_4)
     left_angle = loc.angle_2_points(outer_side["left"][0], outer_side["left"][1])

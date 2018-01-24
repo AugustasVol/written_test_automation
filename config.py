@@ -6,7 +6,7 @@ dimension = np.max
 threshold_kernel_percent = 0.07#0.1
 threshold_C = 12
 
-minimize_ratio = 5
+minimize_ratio = 2
 
 median_blur_kernel_percent = 0.02
 

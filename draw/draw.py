@@ -8,7 +8,7 @@ from PIL import ImageDraw
 # Create a black image
 
 ### config
-y = 33
+y = 30
 x = 330
 
 circle_line_thick = 2

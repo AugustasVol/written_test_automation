@@ -3,11 +3,8 @@
 import os
 from . import loc, pre, config, nets
 import numpy as np
-#import matplotlib.pyplot as plt
 from uuid import uuid4
-#def show(im):
-#    plt.imshow(im,cmap="gray")
-#    plt.show()
+
 
 
 net = nets.answer_model()
@@ -67,7 +64,12 @@ class fiver_iterator:
 
         return im_fiver
 
-def predict(im, black_dots_columns = 4):
+def predict(im, black_dots_columns = 4, visual=False, visual_net=False):
+    if visual:
+        import matplotlib.pyplot as plt
+        def show(im):
+            plt.imshow(im,cmap="gray")
+            plt.show()
 
     ### calculate configs
 
@@ -100,15 +102,18 @@ def predict(im, black_dots_columns = 4):
     #im_median = pre.resize(im_median, (im_th.shape[1],im_th.shape[0]))
 
     ###
-    #show(im)
-    #show(im_th)
-    #show(small_im_median)
+    if visual:
+        show(im_th)
+        show(small_im_median)
 
     ### detect blobs from median_blur_image and get deskew angle
 
     small_blob_detector = loc.blobs(min_area=small_blob_min_area)
     small_blobs = small_blob_detector.blob_location(small_im_median)
     blobs = small_blobs * minimize_ratio # location of blobs in big image
+
+    if visual:
+        print("blobs_len",len(blobs))
 
     outer_4 = loc.locate_4_outer_points(blobs)
     outer_side = loc.sides_from_outer_points(outer_4)
@@ -127,8 +132,10 @@ def predict(im, black_dots_columns = 4):
     #im_median = pre.rotate_bound(image=im_median, angle=skew_angle, border_white=True)
 
     ###
+
+    if visual:
+        show(im_th)
     
-    #show(im_th)
 
     ### sort blobs according to columns pattern
 
@@ -137,9 +144,8 @@ def predict(im, black_dots_columns = 4):
 
     ###
 
-    #print(blob_list)
-
-
+    if visual:
+        print(blob_list.shape)
 
     ### iterate over all fivers(part of image with 5 answers), to create array of all answer lines
 
@@ -155,7 +161,8 @@ def predict(im, black_dots_columns = 4):
         fiver = fiver[config.fiver_margin1:-config.fiver_margin1,
                       config.fiver_margin2:-config.fiver_margin2]
 
-        #show(fiver)
+        if visual_net:
+            show(fiver)
 
         ### iterate over all answer_lines in a fiver
 
@@ -165,7 +172,8 @@ def predict(im, black_dots_columns = 4):
             answer_row = fiver[answer_row_number * fiver_fifth: (answer_row_number+1) * fiver_fifth]
             answer_ims.append([answer_row])
 
-            #show(answer_row)
+            if visual_net:
+                show(answer_row)
             #plt.imsave("./answer_images/5/"+str(uuid4())+".png",answer_row, cmap="gray")
         
         ###

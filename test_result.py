@@ -7,9 +7,9 @@ def show(im):
     plt.imshow(im,cmap="gray")
     plt.show()
 import fire
-def im_predict(path):
+def im_predict(path, visual=False, visual_net=False, save_files=False):
     im = pre.imread(path)
-    show(im)
-    print(result.predict(im, visual=True))
+    #show(im)
+    print(result.predict(im, visual=visual, save_files=save_files, visual_net=visual_net))
                                                                                 
 fire.Fire(im_predict)

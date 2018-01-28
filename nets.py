@@ -54,53 +54,49 @@ class net_base:
         self.load_state_dict(torch.load(path))
     def save_weights(self,path):
         torch.save(self.state_dict(), path)
-
-
-
+    
+    
 class answer_model(nn.Module, net_base):
     def __init__(self, category_number = 6):
         super(answer_model, self).__init__()
+        self.dropout = nn.Dropout(0.25)
 
-        self.conv1 = nn.Conv2d(1,  8, (3,3), stride=(1,1) )
-        self.conv2 = nn.Conv2d(8,  8, (5,5), stride=(2,2) )
-        self.conv3 = nn.Conv2d(8, 16, (5,5), stride=(2,2) )
-        self.conv4 = nn.Conv2d(16,16, (5,5), stride=(1,2) )
-        self.conv5 = nn.Conv2d(16,32, (1,3), stride=(1,2) )
-
-        self.dropout1 = nn.Dropout(0.3)
-        self.dense1 = nn.Linear(256 ,32)
+        self.conv00 = nn.Conv2d(1, 15, (2,2), stride=(2,2))
+        self.conv01 = nn.Conv2d(15, 16, (2,2), stride=(2,2))
+        self.conv02 = nn.Conv2d(16, 16, (1,1), stride=(1,1))
         
-        self.dropout2 = nn.Dropout(0.3)
-        self.dense2 = nn.Linear(32,32)
-
-        self.dropout3 = nn.Dropout(0.3)
-        self.dense3 = nn.Linear(32,32)
-
-        self.final_dense = nn.Linear(32,category_number)
+        self.conv10 = nn.Conv2d(16, 32, (3,3), stride=(3,3))
+        self.conv11 = nn.Conv2d(32,32, (2,2), stride=(1,1))
+        self.conv12 = nn.Conv2d(32,32, (1,1), stride=(1,1))
+        
+        self.conv20 = nn.Conv2d(32, 16, (1,5), stride=(1,2))
+        self.conv21 = nn.Conv2d(16, 16, (1,5), stride=(1,2))
+        self.conv22 = nn.Conv2d(16, 6, (1,1), stride=(1,1))
+        
+        self.final_dense = nn.Linear(6,category_number)
 
         self.loss_function = nn.BCELoss()
         self.optimizer = optim.Adam(self.parameters())
 
         self.train(False)
     def forward(self,x):
-        x = F.relu(self.conv1(x))
-        #print(x.size())
-        x = F.relu(self.conv2(x))
-        #print(x.size())
-        x = F.relu(self.conv3(x))
-        #print(x.size())
-        x = F.relu(self.conv4(x))
-        #print(x.size())
-        x = F.relu(self.conv5(x))
+        x = self.dropout(x)
+        
+        x = F.relu(self.conv00(x))
+        x = F.relu(self.conv01(x))
+        x = F.relu(self.conv02(x))
+        
+        x = F.relu(self.conv10(x))
+        x = F.relu(self.conv11(x))
+        x = F.relu(self.conv12(x))
 
-        #print(x.size())
+        
+        x = F.relu(self.conv20(x))
+        x = F.relu(self.conv21(x))
+        x = F.relu(self.conv22(x))
 
-        x = x.view(-1, 256)
-
-        x = F.relu(self.dropout1(self.dense1(x)))
-        x = F.relu(self.dropout2(self.dense2(x)))
-        x = F.relu(self.dropout3(self.dense3(x)))
+        x = x.view(-1, 6)
 
         x = F.sigmoid(self.final_dense(x))
+        
         return x
-

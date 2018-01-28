@@ -64,8 +64,11 @@ class fiver_iterator:
 
         return im_fiver
 
-def predict(im, black_dots_columns = 4, visual=False, visual_net=False):
-    if visual:
+def predict(im, black_dots_columns = 4,
+            visual=False,
+            visual_net=False,
+            save_files=False):
+    if visual or visual_net or save_files:
         import matplotlib.pyplot as plt
         def show(im):
             plt.imshow(im,cmap="gray")
@@ -174,7 +177,8 @@ def predict(im, black_dots_columns = 4, visual=False, visual_net=False):
 
             if visual_net:
                 show(answer_row)
-            #plt.imsave("./answer_images/5/"+str(uuid4())+".png",answer_row, cmap="gray")
+            if save_files:
+                plt.imsave("./written_test_automation/answer_images/"+str(uuid4())+".png",answer_row, cmap="gray")
         
         ###
 

@@ -12,7 +12,7 @@ class net_base:
         self.train(True)
         
         for i in range(epochs):
-            print(i)
+
             self.optimizer.zero_grad()   # zero the gradient buffers
         
             output = self(x)
@@ -38,7 +38,7 @@ class net_base:
 
         if x.dtype == np.uint8:
             x = x / 255
-
+        print(x.max())
         x = x.astype(np.float32)
         y = y.astype(np.float32)
         

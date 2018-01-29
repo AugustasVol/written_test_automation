@@ -38,7 +38,7 @@ class net_base:
 
         if x.dtype == np.uint8:
             x = x / 255
-        print(x.max())
+            
         x = x.astype(np.float32)
         y = y.astype(np.float32)
         
@@ -59,7 +59,7 @@ class net_base:
 class answer_model(nn.Module, net_base):
     def __init__(self, category_number = 6):
         super(answer_model, self).__init__()
-        self.dropout = nn.Dropout(0.25)
+        self.dropout = nn.Dropout(0.1)
 
         self.conv00 = nn.Conv2d(1, 15, (2,2), stride=(2,2))
         self.conv01 = nn.Conv2d(15, 16, (2,2), stride=(2,2))

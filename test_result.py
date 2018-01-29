@@ -10,6 +10,6 @@ import fire
 def im_predict(path, visual=False, visual_net=False, save_files=False):
     im = pre.imread(path)
     #show(im)
-    print(result.predict(im, visual=visual, save_files=save_files, visual_net=visual_net))
+    print(np.argmax(result.predict(im, visual=visual, save_files=save_files, visual_net=visual_net), axis = 1))
                                                                                 
 fire.Fire(im_predict)

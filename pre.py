@@ -102,9 +102,9 @@ def imread_uri(uri, max_size = 2000):
 def threshold(img, C = 3, kernel_size = 51):
     '''picture dtype=np.uint8'''
     if img.dtype == np.uint8:
-        return cv2.adaptiveThreshold(img, 255 ,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,kernel_size,C)
+        return cv2.adaptiveThreshold(img, 255 ,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,kernel_size,C)
     elif img.dtype == np.float64:
         img = img.astype(np.uint8) * 255
-        return cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,kernel_size,C)
+        return cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,kernel_size,C)
 
  

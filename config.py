@@ -3,11 +3,11 @@ np.set_printoptions(precision=3)
 
 dimension = np.min
 
-threshold_kernel_percent = 0.05
-threshold_C = 10
+threshold_kernel_percent = 0.075
+threshold_C = 5
 minimize_ratio = 2
 
-median_blur_kernel_percent = 0.002
+median_blur_kernel_percent = 0.0027
 
 blob_min_size_percent = 0.037
 

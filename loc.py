@@ -16,8 +16,9 @@ class blobs:
         params.minArea = min_area
 
         params.minRepeatability = 1
-        params.minThreshold = 200
-        params.thresholdStep = 50
+        params.minThreshold = 251
+        params.maxThreshold = 255
+        params.thresholdStep = 5
         self.detector = cv2.SimpleBlobDetector_create(params)
     def blob_location(self, im):
         if im.dtype != np.uint8:

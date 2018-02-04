@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 class net_base:
-    def trainer(self, x,y, epochs = 1):
+    def trainer(self, x,y, epochs = 1, print_loss = True):
         
         self.train(True)
         
@@ -18,7 +18,8 @@ class net_base:
             output = self(x)
             loss = self.loss_function(output, y)
             loss.backward()
-            print(loss)
+            if print_loss:
+                print(loss)
         
             self.optimizer.step()    # Does the update
         
@@ -34,7 +35,7 @@ class net_base:
         output = self(x)
         
         return output.data.numpy()
-    def numpy_train(self,x,y, epochs = 1):
+    def numpy_train(self,x,y, epochs = 1, print_loss = True):
 
         if x.dtype == np.uint8:
             x = x / 255
@@ -48,7 +49,7 @@ class net_base:
         x = autograd.Variable(x)
         y = autograd.Variable(y)
         
-        self.trainer(x,y, epochs = epochs)
+        self.trainer(x,y, epochs = epochs, print_loss = print_loss)
 
     def load_weights(self, path):
         self.load_state_dict(torch.load(path))
@@ -59,7 +60,9 @@ class net_base:
 class answer_model(nn.Module, net_base):
     def __init__(self, category_number = 6):
         super(answer_model, self).__init__()
-        self.dropout = nn.Dropout(0.01)
+        self.dropout = nn.Dropout(0.05)
+
+        #self.conv_start = nn.Conv2d(1, 16, (3,3), stride=(1,1), padding=(1,1))
 
         self.conv00 = nn.Conv2d(1, 15, (2,2), stride=(2,2))
         self.conv01 = nn.Conv2d(15, 16, (2,2), stride=(2,2))
@@ -76,21 +79,27 @@ class answer_model(nn.Module, net_base):
         self.final_dense = nn.Linear(6,category_number)
 
         self.loss_function = nn.BCELoss()
-        self.optimizer = optim.Adam(self.parameters())
+        self.optimizer = optim.Adam(self.parameters(), lr = 0.0001)
 
         self.train(False)
     def forward(self,x):
-        x = self.dropout(x)
+
+        #x = F.relu(self.conv_start(x))
+
+        #x = self.dropout(x)
         
         x = F.relu(self.conv00(x))
         x = F.relu(self.conv01(x))
         x = F.relu(self.conv02(x))
+
+        x = self.dropout(x)
         
         x = F.relu(self.conv10(x))
         x = F.relu(self.conv11(x))
         x = F.relu(self.conv12(x))
 
-        
+        x = self.dropout(x)
+
         x = F.relu(self.conv20(x))
         x = F.relu(self.conv21(x))
         x = F.relu(self.conv22(x))

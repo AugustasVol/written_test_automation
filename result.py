@@ -5,10 +5,15 @@ from . import loc, pre, config, nets
 import numpy as np
 from uuid import uuid4
 
+from skimage.filters import sobel
+
 
 
 net = nets.answer_model()
-net.load_weights(os.path.dirname(os.path.abspath(__file__)) + "/answer_weights.pickle")
+try:
+    net.load_weights(os.path.dirname(os.path.abspath(__file__)) + "/answer_weights.pickle")
+except:
+    pass
 
 class fiver_iterator:
     def __init__(self, im, blob_loc):
@@ -67,8 +72,9 @@ class fiver_iterator:
 def predict(im, black_dots_columns = 4,
             visual=False,
             visual_net=False,
-            save_files=False):
-    if visual or visual_net or save_files:
+            save_files=False
+            save_path="./"):
+    if visual or visual_net:
         import matplotlib.pyplot as plt
         def show(im):
             plt.imshow(im,cmap="gray")
@@ -79,9 +85,11 @@ def predict(im, black_dots_columns = 4,
     
     dimension = config.dimension(im.shape)
 
-    threshold_kernel = pre.odd_number(round(dimension * config.threshold_kernel_percent))
-
     minimize_ratio = config.minimize_ratio
+
+    threshold_kernel = pre.odd_number(round(dimension * config.threshold_kernel_percent))
+    small_threshold_kernel = pre.odd_number(round(threshold_kernel / minimize_ratio))
+    
     small_im_dim_0 = int(round(im.shape[0] / minimize_ratio))
     small_im_dim_1 = int(round(im.shape[1] / minimize_ratio))
  
@@ -91,22 +99,17 @@ def predict(im, black_dots_columns = 4,
     blob_min_area = int(round(3.14 * (((dimension * (config.blob_min_size_percent))/2)**2)))
     small_blob_min_area = int(round(3.14 * (((dimension * (config.blob_min_size_percent / minimize_ratio))/2)**2)))
 
-
     ###
-
-    ###
-
-    ### thesholded image used
-    im_th = pre.threshold(im, kernel_size=threshold_kernel, C = config.threshold_C)
-    
+ 
     ### prepare images for blob detection, everything is scaled down for faster blob detection
-    small_im_th = pre.resize(im_th, (small_im_dim_1, small_im_dim_0))
+    small_im = pre.resize(im, (small_im_dim_1, small_im_dim_0))
+    small_im_th = pre.threshold(small_im, kernel_size=small_threshold_kernel, C = config.threshold_C)
     small_im_median = pre.median_blur(small_im_th, kernel_size=small_median_blur_kernel)
     #im_median = pre.resize(im_median, (im_th.shape[1],im_th.shape[0]))
 
     ###
     if visual:
-        show(im_th)
+        show(im)
         show(small_im_median)
 
     ### detect blobs from median_blur_image and get deskew angle
@@ -130,14 +133,13 @@ def predict(im, black_dots_columns = 4,
 
     ### rotate image and blobs
 
-    im_th = pre.rotate_bound(image=im_th, angle=skew_angle)
-    blobs = loc.rotate_blobs(blobs=blobs,angle=skew_angle,old_dims=im.shape,new_dims=im_th.shape)
-    #im_median = pre.rotate_bound(image=im_median, angle=skew_angle, border_white=True)
+    rotated_im = pre.rotate_bound(image=im, angle=skew_angle)
+    blobs = loc.rotate_blobs(blobs=blobs,angle=skew_angle,old_dims=im.shape,new_dims=rotated_im.shape)
 
     ###
 
     if visual:
-        show(im_th)
+        show(rotated_im)
     
 
     ### sort blobs according to columns pattern
@@ -152,7 +154,7 @@ def predict(im, black_dots_columns = 4,
 
     ### iterate over all fivers(part of image with 5 answers), to create array of all answer lines
 
-    fivers = fiver_iterator(im_th, blob_list)
+    fivers = fiver_iterator(rotated_im, blob_list)
 
     answer_ims = []
     for fiver in fivers:
@@ -167,22 +169,23 @@ def predict(im, black_dots_columns = 4,
         if visual_net:
             show(fiver)
 
-        ### iterate over all answer_lines in a fiver
+        ### iterate over all answer_lines in a fivers preprocesed with sobel
 
         fiver_fifth = int(fiver.shape[0] / 5)
 
         for answer_row_number in range(5):
-            answer_row = fiver[answer_row_number * fiver_fifth: (answer_row_number+1) * fiver_fifth]
+            answer_row_raw = fiver[answer_row_number * fiver_fifth: (answer_row_number+1) * fiver_fifth]
+            answer_row = sobel(answer_row_raw)
             answer_ims.append([answer_row])
 
             if visual_net:
                 show(answer_row)
             if save_files:
-                plt.imsave("./written_test_automation/answer_images/"+str(uuid4())+".png",answer_row, cmap="gray")
+                np.save(save_path+str(uuid4()),answer_row)
         
         ###
 
-    answer_ims = np.array(answer_ims)   
+    answer_ims = np.array(answer_ims)
 
     ###
 

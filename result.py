@@ -72,7 +72,7 @@ class fiver_iterator:
 def predict(im, black_dots_columns = 4,
             visual=False,
             visual_net=False,
-            save_files=False
+            save_files=False,
             save_path="./"):
     if visual or visual_net:
         import matplotlib.pyplot as plt

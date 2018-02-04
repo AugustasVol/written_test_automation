@@ -74,11 +74,8 @@ def predict(im, black_dots_columns = 4,
             visual=False,
             visual_net=False,
             save_files=False,
-<<<<<<< HEAD
             save_some_percent=False,
             save_percent=0.05,
-=======
->>>>>>> 442592790a57e02c7b77ceff702f3cad87e53b9a
             save_path="./"):
     if visual or visual_net:
         import matplotlib.pyplot as plt

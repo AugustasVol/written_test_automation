@@ -4,6 +4,7 @@ import os
 from . import loc, pre, config, nets
 import numpy as np
 from uuid import uuid4
+import random
 
 from skimage.filters import sobel
 
@@ -73,6 +74,11 @@ def predict(im, black_dots_columns = 4,
             visual=False,
             visual_net=False,
             save_files=False,
+<<<<<<< HEAD
+            save_some_percent=False,
+            save_percent=0.05,
+=======
+>>>>>>> 442592790a57e02c7b77ceff702f3cad87e53b9a
             save_path="./"):
     if visual or visual_net:
         import matplotlib.pyplot as plt
@@ -181,6 +187,8 @@ def predict(im, black_dots_columns = 4,
             if visual_net:
                 show(answer_row)
             if save_files:
+                np.save(save_path+str(uuid4()),answer_row)
+            if save_some_percent and (save_percent > random.uniform(0.0,1.0)):
                 np.save(save_path+str(uuid4()),answer_row)
         
         ###
